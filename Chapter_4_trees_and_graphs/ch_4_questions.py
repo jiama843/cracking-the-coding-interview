@@ -129,6 +129,7 @@ print("Q3 list of depths")
 print(list_of_depths(create_tree()))
 
 # 4. Check Balanced
+# Best way is to store height in BST as part of structure
 # post order traversal, check at middle 
 # (pass depth down in recursive case and return depth in base case)
 
@@ -151,6 +152,21 @@ print(check_balanced(create_tree()))
 print(check_balanced(min_tree(test_arr)))
 
 # 5. Validate BST
+# Best way is to mod BST to keep track of parent nodes
 
+reg_bin_tree = min_tree([1,4,2,5,0,6])
 def valid_bst(n):
-    pass
+    if n == None: return True
+
+    l_check = n.left == None or n.left.val < n.val
+    r_check = n.right == None or n.right.val > n.val
+
+    valid_node = l_check and r_check
+    valid_left = valid_bst(n.left)
+    valid_right = valid_bst(n.right)
+
+    return valid_node and valid_left and valid_right
+
+print("Q5 Valid BST")
+print(valid_bst(reg_bin_tree))
+print(valid_bst(create_tree()))
