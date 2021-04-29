@@ -18,6 +18,13 @@ class TreeNode:
 
         return self
 
+    def print_tree(self):
+        print(self.val, end = " ")
+        if self.left:
+            self.left.print_tree()
+        if self.right:
+            self.right.print_tree()
+
 def create_tree():
     root = TreeNode(7, None, None)
     root.insert(TreeNode(5, None, None))
@@ -64,6 +71,7 @@ def postorder_traversal(root):
 
 
 root = create_tree()
+root.print_tree()
 print(inorder_traversal(root))
 print(preorder_traversal(root))
 print(postorder_traversal(root))
