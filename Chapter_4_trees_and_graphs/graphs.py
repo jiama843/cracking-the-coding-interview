@@ -28,6 +28,7 @@ colored = set()
 def BFS(n):
     queue = []
     queue.append(n)
+    colored.add(n)
 
     while len(queue) > 0:
         v = queue.pop(0)

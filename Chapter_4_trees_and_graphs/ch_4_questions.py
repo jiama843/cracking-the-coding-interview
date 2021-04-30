@@ -1,3 +1,5 @@
+import copy
+
 graph = {
     0: [1],
     1: [2],
@@ -13,13 +15,21 @@ class TreeNode:
         self.val = val
         self.left = left
         self.right = right
-        # n is Treenode
+        self.parent = None
 
     def insert(self, n):
         if(self.val < n.val):
-            self.right = n if self.right == None else self.right.insert(n)
+            if self.right == None:
+                self.right = n
+                n.parent = self
+            else:
+                self.right.insert(n)
         elif(self.val > n.val):
-            self.left = n if self.left == None else self.left.insert(n)
+            if self.left == None:
+                self.left = n
+                n.parent = self
+            else:
+                self.left.insert(n)
 
         return self
 
@@ -42,6 +52,18 @@ def create_tree():
     
     return root
 
+def create_p_tree():
+    root = TreeNode(7, None, None)
+    root.insert(TreeNode(5, None, None))
+    root.insert(TreeNode(8, None, None))
+    root.insert(TreeNode(20, None, None))
+    root.insert(TreeNode(1, None, None))
+    root.insert(TreeNode(2, None, None))
+    root.insert(TreeNode(6, None, None))
+    root.insert(TreeNode(3, None, None))
+    
+    return root
+
 # g = graph, s = source
 # def dijkstra(g, s):
 #     dist = {}
@@ -53,6 +75,7 @@ def create_tree():
     
 #     return (dist, prev)
 
+######################################################################
 
 # 1. Route between nodes
 # dijkstra's algo + find smallest path in dist
@@ -63,6 +86,7 @@ def route_btw_nodes(g, n, dest):
 
     queue = []
     queue.append(n)
+    visited.add(n)
     
     while len(queue) > 0:
         v = queue.pop(0)
@@ -79,6 +103,7 @@ def route_btw_nodes(g, n, dest):
 print("Q1 route between nodes")
 print(route_btw_nodes(graph, 2, 1))
 
+######################################################################
 
 # 2. Minimal tree
 # Create node from middle element, recurse on left and right side of array
@@ -102,6 +127,7 @@ def min_tree(s_arr):
 print("Q2 minimal tree")
 print(min_tree(test_arr).print_tree())
 
+######################################################################
 
 # 3. List of depths
 # Modify BFS to keep track of depth and return map (easy to transform into linked list)
@@ -126,7 +152,13 @@ def list_of_depths(node):
     return d_map
 
 print("Q3 list of depths")
-print(list_of_depths(create_tree()))
+
+l_depth = list_of_depths(create_tree())
+for k, v in l_depth.items():
+    v = list(map(lambda n: n.val, v))
+    print(v)
+
+######################################################################
 
 # 4. Check Balanced
 # Best way is to store height in BST as part of structure
@@ -148,11 +180,14 @@ def check_balanced(root):
     return balanced
 
 print("Q4 Check BST balance")
-print(check_balanced(create_tree()))
-print(check_balanced(min_tree(test_arr)))
+print(check_balanced(create_tree())) # Expected False
+print(check_balanced(min_tree(test_arr))) # Expected True
+
+######################################################################
 
 # 5. Validate BST
-# Best way is to mod BST to keep track of parent nodes
+# Can mod BST to keep track of parent nodes
+# Good way is to use inorder traversal and see if its sorted
 
 reg_bin_tree = min_tree([1,4,2,5,0,6])
 def valid_bst(n):
@@ -168,5 +203,194 @@ def valid_bst(n):
     return valid_node and valid_left and valid_right
 
 print("Q5 Valid BST")
-print(valid_bst(reg_bin_tree))
-print(valid_bst(create_tree()))
+print(valid_bst(reg_bin_tree)) # Expected False
+print(valid_bst(create_tree())) # Expected True
+
+######################################################################
+
+# 6. Successor
+# Tricker than it leads on to be
+# If there is a right node, go right once and find leftmost node
+# Otherwise find the first ancestor that is larger than it
+
+# Could use while loops for all of these and save stack space
+# but recursion is easier
+def find_next_ancestor(n):
+    curr = n
+    while curr != None and curr.val <= n.val:
+        curr = curr.parent
+    
+    return curr
+
+def find_leftmost(n):
+    if n.left == None:
+        return n
+    else:
+        return find_leftmost(n.left)
+
+def successor(n):
+    if n.right != None:
+        return find_leftmost(n.right)
+    else:
+        return find_next_ancestor(n)
+
+test_node_left = create_p_tree().left.left.right
+test_node_anc = create_p_tree().left.left.right.right
+
+print("Q6 Successor")
+print(successor(test_node_left).val) # Expected 3
+print(successor(test_node_anc).val) # Expected 5
+
+######################################################################
+
+# 7. Build order
+# Two adjacency lists (forward dependency and backward dependency)
+# Modify BFS so that if there are still deps for a node, place it in the back of queue
+# Generate list of dep_order alongside visited list
+
+# class Node:
+#     self.val: int
+#     self.neighbors: []
+#     self.visited: bool
+
+test_proj = ["a", "b", "c", "d", "e", "f"]
+test_deps = [
+    ("a", "d"),
+    ("f", "b"),
+    ("b", "d"),
+    ("f", "a"),
+    ("d", "c"),
+    ("f", "c")
+]
+
+def pop_deps(proj, deps):
+    dep_for, dep_bac = {}, {}
+
+    for p in proj:
+        dep_for[p], dep_bac[p] = set(), set()
+
+    # Populate dependency maps
+    for dep in deps:
+        d, p = dep
+
+        dep_for[p].add(d)
+        dep_bac[d].add(p)
+
+    return dep_for, dep_bac
+
+def build_order(proj, deps):
+    dep_for, dep_bac = pop_deps(proj, deps)
+    print(dep_for)
+    print(dep_bac)
+
+    visited = set()
+    queue = []
+    dep_order = []
+
+    for p in proj:
+        if len(dep_for[p]) == 0:
+            queue.append(p)
+            visited.add(p)
+
+    while len(queue) > 0:
+        v = queue.pop(0)
+        dep_order.append(v)
+
+        for neighbor in dep_bac[v]:
+            # Don't append if there are still dependencies to be resolved
+            if not dep_for[neighbor].issubset(visited): continue
+
+            if neighbor not in visited:
+                queue.append(neighbor)
+                visited.add(neighbor)
+
+    # Check for invalid dep
+    if len(proj) != len(dep_order): return "ERROR"
+
+    return dep_order
+
+print("Q7 Build Order")
+print(build_order(test_proj, test_deps))
+print(build_order(test_proj, test_deps + [("c", "a")]))
+
+######################################################################
+
+# 8. First Common Ancestor
+# Integrate parent/visited into the TreeNode
+# Trace the first node upward and set all nodes to visted along the way
+# Trace the second node upward and stop
+
+def fca(n1, n2):
+    # Trace n1
+    while n1 != None:
+        n1.visited = True
+        n1 = n1.parent
+
+    # Trace n2 and print common ancestor
+    while n2 != None:
+        if n2.visited: return n2
+        n2 = n2.parent
+
+    return None
+
+print("Q8 First common ancestor -> Skipped since it seems simple enough")
+
+
+######################################################################
+
+# Q9. BST Sequences
+# Divide and conquer
+# Base case: return value
+# Combine: merge all combinations of lists
+
+# All combinations of the right subtree can occur between 
+# all combs of the left subtree and vice-versa
+def bst_seq_combine(curr_val, lscomb, rscomb):
+    comb_list = []
+    for l in lscomb:
+        for i in range(0, len(l)):
+            for r in rscomb:
+                comb = [curr_val] + l[0:i] + r + l[i:len(l)]
+                comb_list.append(comb)
+
+    for r in rscomb:
+        for i in range(0, len(r)):
+            for l in lscomb:
+                comb = [curr_val] + r[0:i] + l + r[i:len(r)]
+                comb_list.append(comb)
+
+    return comb_list
+
+def bst_sequences(node):
+    if node == None: return [[]]
+    if node.left == None and node.right == None: return [[node.val]]
+
+    lscomb = bst_sequences(node.left)
+    rscomb = bst_sequences(node.right)
+
+    curr_combs = bst_seq_combine(node.val, lscomb, rscomb)
+
+    # remove duplicates (there is a problem with returning [[]], 
+    # but would need to dig deeper to find a soln)
+    curr_combs = [tuple(v) for v in curr_combs]
+    curr_combs = list(dict.fromkeys(curr_combs))
+    curr_combs = [list(v) for v in curr_combs]
+
+    return curr_combs
+
+print("Q9 BST sequences")
+print(bst_sequences(create_tree()))
+
+
+######################################################################
+
+# Q10. Check Subtree
+# BFS for potential root nodes, generate list and compare all of them
+# Keep track of height + size in tree node and can use those to figure it out
+
+print("Q10 Check Subtree -> Skipped due to time")
+
+######################################################################
+
+# Q11. Random Node
+# 
