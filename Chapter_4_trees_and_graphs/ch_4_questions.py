@@ -394,3 +394,45 @@ print("Q10 Check Subtree -> Skipped due to time")
 
 # Q11. Random Node
 # 
+
+######################################################################
+
+# Q12. Running sums
+# leverage the fact that sum = curr_sum - prev_sum
+# Every path, keep track of running sum:
+# e.g 1 -> 2 -> 3 -> 4 will have running sums of 1 -> 3 -> 6 -> 10
+# At any given node, the number of sums is #prev_sums such that curr_sum - prev_sum = sum
+# We can use a map to count the number of prev_sums
+
+# This a harder problem to see the optimization
+# (remember the running sum technique for paths)
+
+# Having "global" variables can be kept private within a class using OOP
+prev_sums_count = {}
+curr_sum = 0 # Could also keep track of this per node
+
+def running_sums(n, k):
+    global prev_sums_count
+    global curr_sum
+
+    if n == None: return 0
+
+    curr_sum += n.val
+    prev_sums_count[curr_sum] = prev_sums_count.get(curr_sum, 0) + 1
+
+    # Get number of paths to current node that match sum
+    curr_val = prev_sums_count.get(curr_sum - k, 0)
+
+    # DFS
+    l_val = running_sums(n.left, k)
+    r_val = running_sums(n.right, k)
+
+    path_sums = l_val + r_val + curr_val
+    prev_sums_count[curr_sum] -= 1
+    curr_sum -= n.val
+
+    return path_sums
+
+print("Q12 Running Sums")
+print(running_sums(create_tree(), 6)) # Expected 3
+print(running_sums(create_tree(), 8)) # Expected 2
