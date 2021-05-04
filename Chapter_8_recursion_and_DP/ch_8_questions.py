@@ -265,3 +265,46 @@ print(len(perms_wo_dups(test_perms_str_l))) # Expected 7! = 5040
 # Q7 to solve for Q8. Two things:
 # 1. Keep a set of elements to choose as "front", if it exists in the set, don't recurse
 # 2. Another base case: all elements are the same in list (will always be treated as 1 permutation)
+
+
+def perms_wd_combine(e, arr):
+    for a in arr:
+        a.append(e)
+    
+    return arr
+
+def perms_wd_helper(arr):
+    if len(arr) == 1 or len(set(arr)) == 1: return [arr]
+    
+    perms = []
+
+    unique = set()
+
+    for i, e in enumerate(arr):
+        if e in unique: continue
+
+        unique.add(e)
+        prev_perms = perms_wd_helper(arr[0:i] + arr[i+1:len(arr)])
+        perms += perms_wd_combine(e, prev_perms)
+
+    return perms
+
+def perms_w_dups(s):
+    return perms_wd_helper(list(s))
+
+test_perms_str_3 = "aab"
+test_perms_str_4 = "aabc"
+test_perms_str_5 = "aabcdd"
+
+print("Q8. Permutations with Dups")
+print(perms_w_dups(test_perms_str_3))
+print(perms_w_dups(test_perms_str_4))
+
+perms_test_5 = perms_w_dups(test_perms_str_5)
+lst_perm_tuples = [tuple(x) for x in perms_test_5]
+print(len(perms_test_5) == len(set(lst_perm_tuples))) # True if no dups
+
+
+######################################################################
+
+# Q9. 
