@@ -184,3 +184,84 @@ print(power_set(test_set))
 ######################################################################
 
 # Q5. Recursive Multiply
+# Top-down: Bit shift to divide by 2 (d & c)
+# Choose the smaller of the two inputs, (optimization: handle odd case separately)
+
+######################################################################
+
+# Q6. Towers of Hanoi
+# Bottom-up thinking (denote disks as s, m, l for small, med and large, R, M, L for right midle, left):
+# - 1 disk : sR
+# - 2 disks: sM, mR, sR
+# - 3 disks: sR, mM, sM, lR, sL, mR, sR
+# - 4 disks: sM, mR, sR, lM, sL, mM, sM, xR, sR, mL, sL, lR, sM, mR, sR
+# I can see that where the first two disks are placed depends on the number N. The third move will always be to put the smallest on the 2nd smallest to make room for the next disk
+
+# There is little chance I would be able to figure out the recursive relation during an interview rn
+
+# l, m, r are left, middle, right stacks
+def towers_of_hanoi(n, l, m, r):
+    if n == 1:
+        r.append(l.pop())
+    else:    
+        towers_of_hanoi(n-1, l, r, m)
+        towers_of_hanoi(1, l, m, r)
+        towers_of_hanoi(n-1, m, l, r)
+
+    return (l, m, r)
+
+test_l = ["a", "b", "c", "d", "e"]
+
+print("Q6. Towers of Hanoi")
+print(towers_of_hanoi(5, test_l, [], []))
+
+
+######################################################################
+
+# Q7. Permutations without Dups
+# Top-down thinking: Remove an element of the string and "weave" it between all permutations
+# of the previous layer to generate all permutations of the new string added.
+
+# e.g [a, b, c] In this case weave means to just append to the front
+# weave (a) into p([b, c])
+#     weave (b) into p(c)
+#     weave (c) into p(b)
+# weave (b) into p([a, c])
+#     ...
+
+def perms_wod_combine(e, arr):
+    for a in arr:
+        a.append(e)
+    
+    return arr
+
+def perms_wod_helper(arr):
+    if len(arr) == 1: return [arr]
+    
+    perms = []
+
+    for i, e in enumerate(arr):
+        prev_perms = perms_wod_helper(arr[0:i] + arr[i+1:len(arr)])
+        perms += perms_wod_combine(e, prev_perms)
+
+    return perms
+
+
+def perms_wo_dups(s):
+    return perms_wod_helper(list(s))
+
+test_perms_str = "abc"
+test_perms_str_l = "abcdefg"
+
+print("Q7. Permutations without Dups")
+print(perms_wo_dups(test_perms_str))
+print(len(perms_wo_dups(test_perms_str_l))) # Expected 7! = 5040
+
+
+######################################################################
+
+# Q8. Permutations with Dups
+# After writing out some permutations, we can make some changes to
+# Q7 to solve for Q8. Two things:
+# 1. Keep a set of elements to choose as "front", if it exists in the set, don't recurse
+# 2. Another base case: all elements are the same in list (will always be treated as 1 permutation)
