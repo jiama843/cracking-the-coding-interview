@@ -339,5 +339,80 @@ print(parens(4))
 
 ######################################################################
 
-# Q9. Parens
-# Bottom-up thinking: Let's analyze the first base cases:
+# Q10. Paint Fill
+# Recurse in all 4 directions, starting from a point filling in all values
+# Base case: when the input colour is reached or when the "current colour differs"
+
+test_drawing = [
+    ['b', 'b', 'b', 'a', 'a', 'a', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'b', 'a', 'a', 'a', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'b', 'a', 'a', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'a', 'a', 'c', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'a', 'c', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'a', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'c', 'c', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'],
+    ['b', 'b', 'b', 'b', 'c', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b']
+]
+
+r_c = (7, 4)
+
+def inbounds(canvas, point):
+    r, c = point
+
+    row_inbounds = r >= 0 and r < len(canvas)
+    col_inbounds = c >= 0 and c < len(canvas[-1])
+
+    return row_inbounds and col_inbounds
+
+def paint_fill_rec(canvas, point, curr_col, col):
+    r, c = point
+
+    if curr_col != canvas[r][c] or col == canvas[r][c]: return
+
+    canvas[r][c] = col
+
+    left = (r, c - 1)
+    right = (r, c + 1)
+    up = (r - 1, c)
+    down = (r + 1, c)
+
+    if inbounds(canvas, left): paint_fill_rec(canvas, left, curr_col, col)
+    if inbounds(canvas, right): paint_fill_rec(canvas, right, curr_col, col)
+    if inbounds(canvas, up): paint_fill_rec(canvas, up, curr_col, col)
+    if inbounds(canvas, down): paint_fill_rec(canvas, down, curr_col, col)
+
+def paint_fill(canvas, point, col):
+    r, c = point
+
+    curr_col = canvas[r][c]
+
+    paint_fill_rec(canvas, point, curr_col, col)
+
+
+print("Q10. Paint fill")
+
+# Uncomment the print lines and check in a prettifier
+# print(test_drawing)
+paint_fill(test_drawing, r_c, 'p')
+# print(test_drawing)
+
+
+######################################################################
+
+# Q11. Coins
+# Bottom-upish thinking:
+# You can represent a nickel 2 ways: 5 pennies or 1 nickel
+# dime: 1 dime, 2 * all the ways to represent a nickel
+# quarter: 1 quarter,
+#          2 * all ways to represent a dime + 1 * all ways to represent a nickel, 
+#          1 * all ways to represent a dime + 3 * all ways to represent a nickel, 
+#          5 * all ways to represent a nickel,
+# The number of ways to represent n cents is just to use the number of ways to represent a quarter
+# until there is no choice left, and then the number of ways to represent a dime, and then nickel etc.
