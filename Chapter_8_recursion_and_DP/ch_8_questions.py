@@ -307,4 +307,37 @@ print(len(perms_test_5) == len(set(lst_perm_tuples))) # True if no dups
 
 ######################################################################
 
-# Q9. 
+# Q9. Parens
+# Bottom-up thinking: Let's analyze the first base cases:
+# n = 1 -> ()
+# n = 2 -> (()), ()()
+# n = 3 -> ((())), (()()), (())(), ()(()), ()()()
+# n = 4 -> (((()))), ((()())), ((())()), (()(())), (()()()), ((()))(), ()((())), (()())(), ()(()()), (())()(), ()()(()), ()()()(), (())(())
+
+# Not the best soln due to repeat work (revisit by counting number of parens)
+
+def generate_parents_layer(p_layer):
+    # Basically a check for duplicates
+    uniq_parens = set()
+
+    for p in p_layer:
+        uniq_parens.add("(" + p + ")")
+        for i in range(len(p)): uniq_parens.add(p[0:i] + "()" + p[i:len(p)])
+    
+    return list(uniq_parens)
+
+def parens(n):
+    if n == 1: return ["()"]
+
+    prev_parens = parens(n-1)
+    return generate_parents_layer(prev_parens)
+
+print("Q9. Parens")
+print(parens(3))
+print(parens(4))
+
+
+######################################################################
+
+# Q9. Parens
+# Bottom-up thinking: Let's analyze the first base cases:
