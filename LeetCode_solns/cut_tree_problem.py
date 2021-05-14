@@ -55,7 +55,7 @@ class Solution(object):
 
                 curr = (r, c)
                 
-                if forest[r][c] > 0: pq_tree_order.append((forest[r][c], curr))
+                if forest[r][c] > 1: pq_tree_order.append((forest[r][c], curr))
                 
                 left = (r, c - 1)
                 right = (r, c + 1)
