@@ -416,3 +416,16 @@ paint_fill(test_drawing, r_c, 'p')
 #          5 * all ways to represent a nickel,
 # The number of ways to represent n cents is just to use the number of ways to represent a quarter
 # until there is no choice left, and then the number of ways to represent a dime, and then nickel etc.
+
+# Revisit later with combinatorics or recursion
+
+
+######################################################################
+
+# Q12. Eight Queens
+# Should probably be n queens problem cuz rn we can just return the value straight up
+# "Back tracking algorithm": Place first queen in top-left and place next queen in non-conflicting slot
+# and so on.
+# Keep a set of rows/cols/diagonals taken for O(1) check of rows and cols / diagonals
+
+# n^n solution, where we check every combination of queens for each row
