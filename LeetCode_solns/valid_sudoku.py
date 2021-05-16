@@ -22,8 +22,7 @@ def find_box_coords(r, c):
         ec = 8
     
     return (sr, sc, er, ec)
-        
-    
+
     
 # Requires that board[r][c] != .
 def validate_filled(r, c, board):
